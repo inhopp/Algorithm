@@ -2,8 +2,43 @@
 #include <iostream>
 #include <vector>
 #include <deque>
-#include <sstream>
+#include <algorithm>
 using namespace std;
+
+void parse(string& temp, deque<int>& dq)
+{
+	int cur = 0;
+
+	for (int i = 1; i+1 < temp.size(); i++)
+	{
+		if (temp[i] == ',')
+		{
+			dq.push_back(cur);
+			cur = 0;
+		}
+
+		else
+			cur = 10 * cur + (temp[i] - '0');
+	}
+
+	if (cur != 0)
+		dq.push_back(cur);
+}
+
+void print(deque<int> dq)
+{
+	cout << '[';
+
+	for (int i = 0; i < dq.size(); i++)
+	{
+		cout << dq[i];
+
+		if (i != dq.size() - 1)
+			cout << ',';
+	}
+
+	cout << "]\n";
+}
 
 int main(void)
 {
@@ -17,57 +52,27 @@ int main(void)
 
 	while (t--)
 	{
-		string s;
-		int n;
-		string x;
-		bool error = false;
-
-		cin >> s >> n >> x;
-
 		deque<int> dq;
-
-		
-		string temp = "";
-		for (char c : x)
-		{
-			if (c == '[')
-				continue;
-
-			else if (c >= '0' && c <= '9')
-				temp += c;
-
-			else if (c == ',')
-			{
-				dq.push_back(stoi(temp));
-				temp = "";
-			}
-
-			else // ]
-			{
-				if (temp == "")
-					continue;
-				else
-				{
-					dq.push_back(stoi(temp));
-					temp = "";
-				}
-			}
-		}
-
 		int rev = 0;
+		int n;
+		string query, tmp;
+		bool isWrong = false;
 
-		for (char c : s)
+		cin >> query;
+		cin >> n;
+		cin >> tmp;
+		parse(tmp, dq);
+
+		for (char c : query)
 		{
 			if (c == 'R')
-			{
 				rev = 1 - rev;
-			}
 
-			else // D
+			else
 			{
 				if (dq.empty())
 				{
-					error = true;
+					isWrong = true;
 					break;
 				}
 
@@ -75,30 +80,21 @@ int main(void)
 				{
 					if (!rev)
 						dq.pop_front();
-
 					else
 						dq.pop_back();
 				}
 			}
 		}
 
-		if (error)
+		if (isWrong)
 			cout << "error\n";
 
 		else
 		{
-			cout << '[';
-			for (int i = 0; i < dq.size(); i++)
-			{
-				if (!rev)
-					cout << dq[i];
-				else
-					cout << dq[dq.size() - 1 - i];
+			if (rev)
+				reverse(dq.begin(), dq.end());
 
-				if (i < dq.size() - 1)
-					cout << ',';
-			}
-			cout << ']' << '\n';
+			print(dq);
 		}
 	}
 }
