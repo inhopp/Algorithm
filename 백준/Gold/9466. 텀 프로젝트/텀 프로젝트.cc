@@ -1,70 +1,70 @@
-#define _CRT_SECURE_NO_DEPRECATE
 #include <iostream>
-#include <vector>
-#include <queue>
-#include <algorithm>
 #include <string>
-#include <tuple>
+#include <algorithm>
+#include <vector>
+#include <list>
+#include <stack>
+#include <queue>
+
 using namespace std;
 
-int arr[100001];
-int state[100001];
-int n;
+int A[100005];
+int State[100005];
 
 const int NOT_VISITED = 0;
-const int CYCLE_IN = -1;
+const int IN_CYCLE = -1;
 
-void run(int x)
+void Check_Cycle(int x)
 {
-	int cur = x;
-	
-	while (true)
-	{
-		state[cur] = x;
-		cur = arr[cur];
+    int cur = x;
 
-		if (state[cur] == x)
-		{
-			while (state[cur] != CYCLE_IN)
-			{
-				state[cur] = CYCLE_IN;
-				cur = arr[cur];
-			}
-			return;
-		}
+    while(true) {
+        State[cur] = x;
+        cur = A[cur];
 
-		else if (state[cur] != 0)
-			return;
-	}
+        if (State[cur] == x) {
+            while(State[cur] != IN_CYCLE) {
+                State[cur] = IN_CYCLE;
+                cur = A[cur];
+            }
+
+            return;
+        }
+
+        if (State[cur] != 0)
+            return;
+    }
 }
-
 
 int main(void)
 {
-	ios::sync_with_stdio(0);
-	cin.tie(0);
+    // freopen("input.txt", "r", stdin);
 
-	int t;
-	cin >> t;
+    ios::sync_with_stdio(0);
+    cin.tie(0);
 
-	while (t--)
-	{
-		cin >> n;
-		for (int i = 1; i < n + 1; i++)
-			cin >> arr[i];
+    int T, N;
+    cin >> T;
 
-		fill(state + 1, state + 1 + n, 0);
+    while(T--) {
+        cin >> N;
 
-		for (int i = 1; i < n + 1; i++)
-			if (state[i] == NOT_VISITED)
-				run(i);
+        for (int i = 1; i <= N; i++)
+            cin >> A[i];
 
-		int cnt = 0;
+        for (int i = 1; i <= N; i++) {
+            if (State[i] == NOT_VISITED)
+                Check_Cycle(i);
+        }
 
-		for (int i = 1; i < n + 1; i++)
-			if (state[i] != CYCLE_IN)
-				cnt++;
+        int cnt = 0;
 
-		cout << cnt << '\n';
-	}
+        for (int i = 1; i <= N; i++)
+            if (State[i] != IN_CYCLE)
+                cnt++;
+
+        cout << cnt << endl;
+
+        fill(State, State + N + 1, 0);
+    }
 }
