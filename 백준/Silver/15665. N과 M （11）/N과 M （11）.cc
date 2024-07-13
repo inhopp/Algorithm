@@ -1,54 +1,48 @@
-#define _CRT_SECURE_NO_DEPRECATE
-#include <iostream>0
-#include <vector>
-#include <stack>
+#include <iostream>
 #include <string>
 #include <algorithm>
+#include <vector>
+#include <math.h>
+#include <set>
+
 using namespace std;
 
+int A[8];
+int B[8];
+int N, M;
 
-int n, m;
-int N[8];
-int arr[8];
-
-void func(int state, int idx)
+void func(int s)
 {
-	if (state == m)
-	{
-		for (int i = 0; i < m; i++)
-			cout << arr[i] << " ";
-		cout << "\n";
+    if (s==M+1) {
+        for (int i = 1; i <= M; i++)
+            cout << B[i] << " ";
+        cout << "\n";
+        return;
+    }
 
-		return;
-	}
+    int Prev = -1;
+    for (int i = 1; i <= N; i++) {
+        if (A[i] == Prev)
+            continue;
 
-	int temp = 0;
-
-	for (int i = 0; i < n; i++)
-	{
-		if (temp != N[i])
-		{
-			arr[state] = N[i];
-			temp = N[i];
-
-			func(state + 1, i);
-		}
-	}
+        B[s] = A[i];
+        Prev = A[i];
+        func(s + 1);
+    }
 }
 
 int main(void)
 {
-	// freopen("input.txt", "r", stdin);
+    // freopen("input.txt", "r", stdin);
 
-	ios::sync_with_stdio(0);
-	cin.tie(0);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
 
-	cin >> n >> m;
+    cin >> N >> M;
+    for (int i = 1; i <= N; i++)
+        cin >> A[i];
 
-	for (int i = 0; i < n; i++)
-		cin >> N[i];
+    sort(A, A + N + 1);
 
-	sort(N, N + n);
-
-	func(0, 0);
+    func(1);
 }
