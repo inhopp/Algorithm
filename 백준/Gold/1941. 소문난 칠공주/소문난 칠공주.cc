@@ -1,108 +1,128 @@
-#define _CRT_SECURE_NO_DEPRECATE
 #include <iostream>
+#include <string>
+#include <algorithm>
 #include <vector>
 #include <queue>
-#include <algorithm>
-#include <string>
-#include <tuple>
+#include <math.h>
+#include <set>
+
 using namespace std;
 
-char A[5][5];
-int B[25];
-int cnt;
-
-int Board[5][5];
-int V[5][5];
 #define X first
 #define Y second
-int dx[4] = { -1, 0, 1, 0 };
-int dy[4] = { 0, -1, 0, 1 };
+
+int A[5][5];
+int V[5][5];
+int VV[5][5];
+int dx[4] = {1, 0, -1, 0};
+int dy[4] = {0, 1, 0, -1};
 queue<pair<int, int>> Q;
 
-bool check()
+int P[25];
+int res;
+
+bool connected()
 {
-	int size = 0;
+    int cnt = 0;
 
-	for (int i = 0; i < 5; i++)
-		for (int j = 0; j < 5; j++)
-		{
-			if (Board[i][j] == 0 || V[i][j] == 1) continue;
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (V[i][j] == 0 || VV[i][j] == 1)
+                continue;
 
-			Q.push({ i,j });
-			V[i][j] = 1;
-			size++;
+            Q.push({i, j});
+            VV[i][j] = 1;
+            cnt++;
 
-			while (!Q.empty())
-			{
-				auto cur = Q.front();
-				Q.pop();
+            while(!Q.empty()) {
+                auto cur = Q.front();
+                Q.pop();
 
-				for (int dir = 0; dir < 4; dir++)
-				{
-					int nx = cur.X + dx[dir];
-					int ny = cur.Y + dy[dir];
+                for (int dir = 0; dir < 4; dir++) {
+                    int nx = cur.X + dx[dir];
+                    int ny = cur.Y + dy[dir];
 
-					if (nx < 0 || nx >= 5 || ny < 0 || ny >= 5) continue;
-					if (Board[nx][ny] == 0 || V[nx][ny] == 1) continue;
+                    if (nx<0 || nx>=5 || ny<0 || ny>=5)
+                        continue;
+                    
+                    if (V[nx][ny]==1 && VV[nx][ny]==0) {
+                        Q.push({nx, ny});
+                        VV[nx][ny] = 1;
+                    }
+                }
+            }
+        }
+    }
 
-					Q.push({ nx, ny });
-					V[nx][ny] = 1;
-				}
-			}
-		}
+    if (cnt==1)
+        return true;
 
-	for (int i = 0; i < 5; i++)
-		fill(V[i], V[i] + 5, 0);
+    return false;
+}
 
-	if (size > 1) return false;
-	else return true;
+void initialize()
+{
+    for (int i = 0; i < 5; i++) {
+        fill(V[i], V[i] + 5, 0);
+        fill(VV[i], VV[i] + 5, 0);
+    }
+}
+
+int counting()
+{
+    int cnt = 0;
+
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++) {
+            if (A[i][j]==1 && V[i][j]==1)
+                cnt++;
+        }
+    
+    return cnt;
 }
 
 int main(void)
 {
-	// freopen("input.txt", "r", stdin);
+    // freopen("input.txt", "r", stdin);
 
-	ios::sync_with_stdio(0);
-	cin.tie(0);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
 
-	for (int i = 0; i < 5; i++)
-		for (int j = 0; j < 5; j++)
-			cin >> A[i][j];
+    for (int i = 0; i < 5; i++) {
+        string s;
+        cin >> s;
 
-	for (int i = 0; i < 25; i++)
-	{
-		if (i > 17)
-			B[i] = 1;
-		else
-			B[i] = 0;
-	}
+        for (int j = 0; j < 5; j++) {
+            if (s[j] == 'Y')
+                A[i][j] = 0;
+            else
+                A[i][j] = 1;
+        }
+    }
 
-	do {
-		int sum = 0;
+    for (int i = 18; i < 25; i++)
+        P[i] = 1;
 
-		for (int i = 0; i < 25; i++)
-		{
-			int r = i / 5;
-			int c = i % 5;
+    do {
+        for (int i = 0; i < 25; i++) {
+            int r = i / 5;
+            int c = i % 5;
 
-			Board[r][c] = B[i];
-		}
+            V[r][c] = P[i];
+        }
 
-		if (!check()) continue;
+        if (!connected()) {
+            initialize();
+            continue;
+        }
 
-		for (int i = 0; i < 25; i++)
-		{
-			int r = i / 5;
-			int c = i % 5;
+        int cnt = counting();
 
-			if (B[i] == 1 && A[r][c] == 'S')
-				sum++;
-		}
+        if (cnt >=4)
+            res++;
 
-		if (sum >= 4)
-			cnt++;
+        initialize();
+    } while (next_permutation(P, P + 25));
 
-	} while (next_permutation(B, B + 25));
-
-	cout << cnt;
+    cout << res << endl;
 }
