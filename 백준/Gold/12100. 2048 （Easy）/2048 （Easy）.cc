@@ -5,56 +5,69 @@
 #include <algorithm>
 #include <string>
 #include <tuple>
+#include <map>
+#include <math.h>
 using namespace std;
 
-int N;
-int mx;
+int A[21][21];
+int B[21][21];
+int C[21];
 
-int Board[20][20];
-int BoardOrigin[20][20];
-int temp[20];
+int N, mx;
 
-void rotate(bool CW)
+void rotate()
 {
-	int rotateTemp[20][20];
+	int Temp[21][21];
 
 	for (int i = 0; i < N; i++)
 		for (int j = 0; j < N; j++)
-			rotateTemp[i][j] = Board[i][j];
+			Temp[i][j] = B[i][j];
 
 	for (int i = 0; i < N; i++)
 		for (int j = 0; j < N; j++)
-		{
-			if (CW) Board[i][j] = rotateTemp[N - 1 - j][i];
-			else Board[i][j] = rotateTemp[j][N - 1 - i];
-		}
+			B[i][j] = Temp[N - 1 - j][i];
 }
 
-void func()
+void move(int dir)
 {
-	for (int i = 0; i < N; i++)
-	{
-		fill(temp, temp + 20, 0);
+	while (dir--) rotate();
 
+	for (int i = 0; i < N; i++) {
+		fill(C, C + N, 0);
 		int idx = 0;
 
-		for (int j = 0; j < N; j++)
-		{
-			if (Board[i][j] == 0) continue;
+		for (int j = 0; j < N; j++) {
+			if (B[i][j] == 0)
+				continue;
 
-			if (temp[idx] == 0)
-				temp[idx] = Board[i][j];
+			if (C[idx] == 0) 
+				C[idx] = B[i][j];
 
-			else if (temp[idx] == Board[i][j])
-				temp[idx++] *= 2;
+			else if (C[idx] == B[i][j]) {
+				C[idx++] *= 2;
+			}
 
-			else
-				temp[++idx] = Board[i][j];
+			else {
+				C[++idx] = B[i][j];
+			}
 		}
 
 		for (int j = 0; j < N; j++)
-			Board[i][j] = temp[j];
+			B[i][j] = C[j];
 	}
+
+}
+
+int maximum()
+{
+	int mx = 0;
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < N; j++) {
+			if (B[i][j] > mx)
+				mx = B[i][j];
+		}
+
+	return mx;
 }
 
 int main(void)
@@ -65,38 +78,27 @@ int main(void)
 	cin.tie(0);
 
 	cin >> N;
-	
 	for (int i = 0; i < N; i++)
 		for (int j = 0; j < N; j++)
-			cin >> BoardOrigin[i][j];
+			cin >> A[i][j];
 
-	for (int rot = 0; rot < 1024; rot++)
-	{
+	int total = 1 << 2 * 5;
+	for (int temp = 0; temp < total; temp++) {
 		for (int i = 0; i < N; i++)
 			for (int j = 0; j < N; j++)
-				Board[i][j] = BoardOrigin[i][j];
+				B[i][j] = A[i][j];
 
-		int brute = rot;
+		int brute = temp;
 
-		for (int step = 0; step < 5; step++)
-		{
+		for (int i = 0; i < 5; i++) {
 			int dir = brute % 4;
-
-			for (int i = 0; i < dir; i++)
-				rotate(true);
-
-			func();
-
-			for (int i = 0; i < dir; i++)
-				rotate(false);
-
 			brute /= 4;
+
+			move(dir);
 		}
 
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < N; j++)
-				if (Board[i][j] > mx) mx = Board[i][j];
+		mx = max(mx, maximum());
 	}
 
-	cout << mx;
+	cout << mx << endl;
 }
