@@ -5,35 +5,18 @@
 #include <algorithm>
 #include <string>
 #include <tuple>
+#include <map>
+#include <math.h>
 using namespace std;
-
-int N, M;
-int Map[50][50];
-int Map2[50][50];
-int Index[13];
-int mn = 10000;
-
-vector<pair<int, int>> V;
-vector<pair<int, int>> V_temp;
 
 #define X first
 #define Y second
 
-int func(int x, int y)
-{
-	int val = 10000;
+vector<pair<int, int>> A;
+vector<pair<int, int>> B;
+int P[14];
 
-	for (auto c : V_temp)
-	{
-		int cx = c.X;
-		int cy = c.Y;
-
-		int dist = abs(cx - x) + abs(cy - y);
-		val = min(val, dist);
-	}
-
-	return val;
-}
+int N, M, v, res=5000;
 
 int main(void)
 {
@@ -43,49 +26,40 @@ int main(void)
 	cin.tie(0);
 
 	cin >> N >> M;
-
 	for (int i = 0; i < N; i++)
-		for (int j = 0; j < N; j++)
-		{
-			cin >> Map[i][j];
-			
-			if (Map[i][j] == 2)
-				V.push_back({ i,j });					
+		for (int j = 0; j < N; j++) {
+			cin >> v;
+
+			if (v == 1)
+				A.push_back({ i,j });
+
+			else if (v == 2)
+				B.push_back({ i,j });
 		}
 
-	for (int i = 0; i < M; i++)
-		Index[13 - 1 - i] = 1;
+	for (int i = B.size() - M; i < B.size(); i++)
+		P[i] = 1;
 
 	do {
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < N; j++)
-				Map2[i][j] = Map[i][j];
+		vector<pair<int, int>> Temp;
 
-		int idx = -1;
-		V_temp.clear();
-		for (auto c : V)
-		{
-			idx++;
-			if (Index[13 - 1 - idx] == 1)
-			{
-				V_temp.push_back({ c.X, c.Y });
-				continue;
+		for (int i = 0; i < B.size(); i++)
+			if (P[i] == 1)
+				Temp.push_back(B[i]);
+
+		int sum = 0;
+		for (auto a : A) {
+			int dist = 5000;
+
+			for (auto t : Temp) {
+				dist = min(dist, abs(a.X - t.X) + abs(a.Y - t.Y));
 			}
 
-			Map2[c.X][c.Y] = 0;
+			sum += dist;
 		}
 
-		int dist = 0;
-		for (int i = 0; i < N; i++)
-			for (int j = 0; j < N; j++)
-			{
-				if (Map2[i][j] != 1) continue;
-				
-				dist += func(i, j);
-			}
+		res = min(res, sum);
+	} while (next_permutation(P, P + B.size()));
 
-		mn = min(mn, dist);
-	} while (next_permutation(Index, Index + 13));
-
-	cout << mn;
+	cout << res << endl;
 }
