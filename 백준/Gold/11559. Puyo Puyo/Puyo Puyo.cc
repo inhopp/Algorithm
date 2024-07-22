@@ -5,85 +5,81 @@
 #include <algorithm>
 #include <string>
 #include <tuple>
+#include <map>
+#include <math.h>
 using namespace std;
-
-char Board[12][6];
-int Visit[12][6];
-
-int dx[4] = { -1, 0, 1, 0 };
-int dy[4] = { 0, -1, 0, 1 };
 
 #define X first
 #define Y second
 
+char A[12][6];
+
+int dx[4] = { 1, 0, -1, 0 };
+int dy[4] = { 0, 1, 0, -1 };
+int res;
+
 queue<pair<int, int>> Q;
-vector<pair<int, int>> temp;
 
-int cnt;
-
-int func(int x, int y)
+void Tilt()
 {
-	char color = Board[x][y];
-	
-	temp.push_back({ x, y });
-	Q.push({ x, y });
-	Visit[x][y] = 1;
+	for (int j = 0; j < 6; j++) {
+		char temp[12];
+		int idx = 0;
 
-	int size = 0;
+		for (int i = 0; i < 12; i++)
+			if (A[11-i][j] != '.') {
+				temp[idx] = A[11-i][j];
+				idx++;
+			}
 
-	while (!Q.empty())
-	{
+		for (int i = 0; i < 12; i++) {
+			if (i < idx) 
+				A[11 - i][j] = temp[i];
+			
+			else
+				A[11 - i][j] = '.';
+		}
+	}
+}
+
+bool BFS(int r, int c) {
+	vector<pair<int, int>> temp;
+	int V[12][6] = { 0 };
+
+
+	char color = A[r][c];
+	Q.push({ r,c });
+	V[r][c] = 1;
+
+	while (!Q.empty()) {
 		auto cur = Q.front();
 		Q.pop();
-		size++;
+		temp.push_back({ cur.X, cur.Y });
 
-		for (int dir = 0; dir < 4; dir++)
-		{
+		for (int dir = 0; dir < 4; dir++) {
 			int nx = cur.X + dx[dir];
 			int ny = cur.Y + dy[dir];
 
-			if (nx < 0 || nx >= 12 || ny < 0 || ny >= 6) continue;
-			if (Board[nx][ny] != color || Visit[nx][ny] == 1) continue;
+			if (nx < 0 || nx >= 12 || ny < 0 || ny >= 6)
+				continue;
 
-			Q.push({ nx, ny });
-			Visit[nx][ny] = 1;
-			temp.push_back({ nx,ny });
+			if (A[nx][ny] == color && V[nx][ny] == 0) {
+				Q.push({ nx,ny });
+				V[nx][ny] = 1;
+			}
 		}
 	}
 
-	if (size < 4)
-	{
-		temp.clear();
-		return 0;
+	if (temp.size() < 4)
+		return false;
+
+	for (auto T : temp) {
+		A[T.X][T.Y] = '.';
 	}
 
-	for (auto pos : temp)
-		Board[pos.X][pos.Y] = '.';
-
-	temp.clear();
-
-	return size;
+	return true;
 }
 
-void tilt()
-{
-	char tiltTemp[12];
-	
-	for (int i = 0; i < 6; i++)
-	{
-		int idx = 0;
-		fill(tiltTemp, tiltTemp + 12, '.');
-
-		for (int j = 0; j < 12; j++)
-		{
-			if (Board[12 - 1 - j][i] == '.') continue;
-			tiltTemp[idx++] = Board[12 - 1 - j][i];
-		}
-
-		for (int k = 0; k < 12; k++)
-			Board[12 - 1 - k][i] = tiltTemp[k];
-	}
-}
 
 int main(void)
 {
@@ -94,27 +90,28 @@ int main(void)
 
 	for (int i = 0; i < 12; i++)
 		for (int j = 0; j < 6; j++)
-			cin >> Board[i][j];
+			cin >> A[i][j];
 
-	while (true)
-	{
-		int chain = 0;
 
-		for (int i = 0; i < 12; i++)
-			fill(Visit[i], Visit[i] + 6, 0);
+	while (true) {
+		int cnt = 0;
 
 		for (int i = 0; i < 12; i++)
-			for (int j = 0; j < 6; j++)
-			{
-				if (Board[i][j] == '.' || Visit[i][j] == 1) continue;
+			for (int j = 0; j < 6; j++) {
+				if (A[i][j] == '.')
+					continue;
 
-				chain += func(i, j);
+				if (BFS(i, j)) {
+					cnt++;
+				}
 			}
 
-		if (chain == 0) break;
-		tilt();
-		cnt++;
+		if (cnt == 0)
+			break;
+
+		Tilt();
+		res++;
 	}
 
-	cout << cnt;
+	cout << res << endl;
 }
