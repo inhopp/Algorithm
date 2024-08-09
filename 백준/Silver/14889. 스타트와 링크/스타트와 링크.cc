@@ -34,12 +34,9 @@ int main(void)
 		int S[2] = { 0,0 };
 
 	for (int i = 0; i < N; i++) {
-			for (int j = 0; j < N; j++) {
-				if (i == j)
-					continue;
-
+		for (int j = i + 1; j < N; j++) {
 				if (P[i] == P[j]) {
-					S[P[i]] += A[i][j];
+					S[P[i]] += (A[i][j] + A[j][i]);
 				}
 			}
 		}
