@@ -9,7 +9,7 @@
 using namespace std;
 
 
-long long N;
+int N;
 int D[1500051];
 int T, P;
 
