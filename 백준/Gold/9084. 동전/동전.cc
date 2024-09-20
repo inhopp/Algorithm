@@ -6,10 +6,12 @@
 #include <string>
 #include <tuple>
 #include <map>
+#include <math.h>
+
 using namespace std;
 
-int C[21];
-int V[21][10001];
+int A[21];
+long long D[10005];
 
 int main(void)
 {
@@ -18,32 +20,26 @@ int main(void)
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 
-	int T, N, M;
+	int T, N, M, idx;
 	cin >> T;
 
-	while (T--)
-	{
+	while (T--) {
 		cin >> N;
-		for (int i = 1; i <= N; i++)
-		{
-			cin >> C[i];
-			V[i][0] = 1;
-		}
+		for (int i = 0; i < N; i++)
+			cin >> A[i];
+
 		cin >> M;
 
+		D[0] = 1;
 
-		for (int i = 1; i <= N; i++)
-		{
-			for (int j = 1; j < C[i]; j++)
-				V[i][j] = V[i - 1][j];
-
-			for (int j = C[i]; j <= M; j++)
-				V[i][j] = V[i][j - C[i]] + V[i - 1][j];
+		for (int i = 0; i < N; i++) {
+			for (int j = A[i]; j <= M; j++) {
+				D[j] += D[j - A[i]];
+			}
 		}
 
-		cout << V[N][M] << "\n";
+		cout << D[M] << endl;
 
-		for (int i = 1; i <= N; i++)
-			fill(V[i], V[i] + M, 0);
+		fill(D, D + M + 1, 0);
 	}
-}
+} 
